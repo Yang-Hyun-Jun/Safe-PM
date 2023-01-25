@@ -70,7 +70,7 @@ parameters_train = {"lr1":args.lr1,
 
 viz = Viz()
 trainer = DDT(**parameters_train)
-# trainer.train()
-# trainer.save_model(utils.SAVE_DIR + "/net.pth")
+trainer.train()
+trainer.save_model(utils.SAVE_DIR + "/net.pth")
 trainer.test(path=utils.SAVE_DIR + "/net.pth")
 viz.show(1,1)

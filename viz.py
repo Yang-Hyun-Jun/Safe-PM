@@ -8,17 +8,16 @@ class Viz:
         pass
 
     def show(self, seed_from, seed_to):
-        SAVE_DIR = "/Users/mac/Desktop/Work Space/Safe PM 2/Metrics"
         mean_datas = []
         mode_datas = []
         BH_datas = []
         cppi_datas = []
 
         for i in range(seed_from, seed_to+1):
-            path1 = SAVE_DIR + f"/seed{i}/Profitloss_Test_mean"
-            path2 = SAVE_DIR + f"/seed{i}/Profitloss_Test_mode"
-            path3 = SAVE_DIR + f"/seed{i}/Profitloss_Test_BH"
-            path4 = SAVE_DIR + f"/seed{i}/Profitloss_Test_cppi"
+            path1 = utils.BASE_DIR + f"/seed{i}/Profitloss_Test_mean"
+            path2 = utils.BASE_DIR + f"/seed{i}/Profitloss_Test_mode"
+            path3 = utils.BASE_DIR + f"/seed{i}/Profitloss_Test_BH"
+            path4 = utils.BASE_DIR + f"/seed{i}/Profitloss_Test_cppi"
 
             data1 = pd.read_csv(path1, index_col=0)["Profitloss"].to_numpy()
             data2 = pd.read_csv(path2, index_col=0)["Profitloss"].to_numpy()
