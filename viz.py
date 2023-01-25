@@ -7,7 +7,7 @@ class Viz:
     def __init__(self):
         pass
 
-    def show(self, seed_from, seed_to):
+    def show(self, seed_from, seed_to, size=(5,5)):
         mean_datas = []
         mode_datas = []
         BH_datas = []
@@ -45,7 +45,7 @@ class Viz:
         cl3 = "C2"
         cl4 = "C4"
 
-        plt.figure(figsize=(5, 5))
+        plt.figure(figsize=size)
         plt.fill_between(x=np.arange(expect_mean.shape[0]), y1=expect_mean + beta * std_mean, y2=expect_mean - beta * std_mean, alpha=0.3, color=cl1)
         plt.plot(expect_mean, label="mean", color=cl1)
         plt.xticks(rotation=45, fontsize=20)
