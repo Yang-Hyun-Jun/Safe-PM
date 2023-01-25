@@ -3,7 +3,8 @@ import numpy as np
 import torch
 import utils
 from datamanager import DataManager
-from trainer import DDT
+from trainer import Trainer
+from tester import Tester
 from viz import Viz
 
 # ["COST", "INCY"]
@@ -48,29 +49,31 @@ train_data_tensor, test_data_tensor = datamanager.get_data_tensor()
 K = train_data_tensor.shape[2]
 F = train_data_tensor.shape[1]-1
 
-parameters_train = {"lr1":args.lr1, 
-                    "lr2":args.lr2, 
-                    "tau":args.tau, 
-                    "delta":args.delta, 
-                    "alpha":args.alpha,
-                    "gamma":args.gamma,
-                    "K":K, "F":F, 
-                    "fee":args.fee, 
-                    "term":args.term,
-                    "freq":args.freq,
-                    "cons":args.cons,
-                    "balance":args.balance, 
-                    "episode":args.episode,
-                    "train_data":train_data_tensor,
-                    "test_data":test_data_tensor,
-                    "min_trading_price":args.min_trading_price,
-                    "max_trading_price":args.max_trading_price,
-                    "batch_size":args.batch_size,
-                    "memory_size":args.memory_size}
+parameters= {
+            "lr1":args.lr1, 
+            "lr2":args.lr2, 
+            "tau":args.tau, 
+            "delta":args.delta, 
+            "alpha":args.alpha,
+            "gamma":args.gamma,
+            "K":K, "F":F, 
+            "fee":args.fee, 
+            "term":args.term,
+            "freq":args.freq,
+            "cons":args.cons,
+            "balance":args.balance, 
+            "episode":args.episode,
+            "min_trading_price":args.min_trading_price,
+            "max_trading_price":args.max_trading_price,
+            "batch_size":args.batch_size,
+            "memory_size":args.memory_size
+            }
 
 viz = Viz()
-trainer = DDT(**parameters_train)
+trainer = Trainer(**parameters, data=train_data_tensor)
 trainer.train()
 trainer.save_model(utils.SAVE_DIR + "/net.pth")
+
+tester = Tester(**parameters, data=test_data_tensor)
 trainer.test(path=utils.SAVE_DIR + "/net.pth")
 viz.show(1,1)

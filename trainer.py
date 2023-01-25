@@ -9,7 +9,7 @@ from agent import Agent
 from network import Network
 from metrics import Metrics
 
-class DDT:
+class Trainer:
     """
     s: feature state
     p: portfolio state
@@ -19,10 +19,10 @@ class DDT:
     """
 
     def __init__(self,
-                 lr1, lr2, test_data, term, freq,
+                 lr1, lr2, term, freq,
                  tau, delta, alpha, gamma, fee,
                  batch_size, memory_size, cons,
-                 train_data, balance, episode, K, F,  
+                 data, balance, episode, K, F,  
                  min_trading_price, max_trading_price):
 
         assert min_trading_price >= 0
@@ -31,7 +31,7 @@ class DDT:
 
         self.net = Network(K=K, F=F)
         self.target_net = Network(K=K, F=F)
-        self.environment = Environment(train_data)
+        self.environment = Environment(data)
         self.memory = ReplayMemory(memory_size)
         self.metrics = Metrics()
 
@@ -42,8 +42,7 @@ class DDT:
         self.balance = balance
         self.episode = episode
         self.batch_size = batch_size
-        self.train_data = train_data
-        self.test_data = test_data
+        self.data = data
 
         self.agent = Agent(lr1=lr1, lr2=lr2, term=term,
                            environment=self.environment,
@@ -70,7 +69,7 @@ class DDT:
             steps_done = 0
             costs = []
 
-            prices = self.environment.observe()
+            prices = self.agent.environment.observe()
             portfolio = self.agent.portfolio
             cushion = self.agent.get_cushion()
             state = self.make_state(prices, portfolio, cushion)
@@ -146,56 +145,7 @@ class DDT:
                         self.metrics.get_cash()
 
                     break
-           
-    def test(self, path=None, data=None, tests=["BH", "mean", "mode", "cppi"]):
-        for test in tests:
-            self.agent.net.load_state_dict(torch.load(path)) if path is not None else self.agent.net
-            self.environment.chart_data = data if data is not None else self.test_data
-            self.reset()
-
-            cum_r = 0
-            cum_c = 0 
-            steps_done = 0
-
-            prices = self.environment.observe()
-            portfolio = self.agent.portfolio
-            cushion = self.agent.get_cushion()
-            state = self.make_state(prices, portfolio, cushion)       
-
-            while True:
-                mode = "_Test_" + test
-                action, sample, log_prob = self.agent.get_action(torch.tensor(state).float().view(1,self.K+1,-1), test)
-                n_prices, n_portfolio, reward, cost, done = self.agent.step(action, abs(action))
-                n_cushion = self.agent.get_cushion()
-                next_state = self.make_state(n_prices, n_portfolio, n_cushion)
-                # print(self.agent.portfolio, action)
-
-                cum_r += reward
-                cum_c += cost
-                steps_done += 1
-                state = next_state
-
-                self.metrics.portfolio_values.append(self.agent.portfolio_value)
-                self.metrics.profitlosses.append(self.agent.profitloss)
-                self.metrics.cum_fees.append(self.agent.cum_fee)
-                self.metrics.cash.append(self.agent.portfolio[0])
-
-                if done:
-                    print(f"epi:" + mode)
-                    print(f"cum cost:{cum_c}")
-                    print(f"cum reward:{cum_r}")
-                    print(f"cushion:{n_cushion}")
-                    print(f"a:{action}")
-                    print(f"c:{cost}")
-                    print(f"cum_fee:{self.agent.cum_fee}")
-                    print(f"portfolio:{self.agent.portfolio}")
-                    print(f"profitloss:{self.agent.profitloss}\n")
-                    self.metrics.get_profitlosses(mode=mode)
-                    self.metrics.get_portfolio_values(mode=mode)
-                    self.metrics.get_fees(mode=mode)
-                    self.metrics.get_cash(mode=mode)
-                    break
-
+     
     def save_model(self, net_path):
         torch.save(self.agent.net.state_dict(), net_path)
 
