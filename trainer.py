@@ -19,7 +19,7 @@ class DDT:
     """
 
     def __init__(self,
-                 lr1, lr2, test_data,
+                 lr1, lr2, test_data, term, freq,
                  tau, delta, alpha, gamma, fee,
                  batch_size, memory_size, cons,
                  train_data, balance, episode, K, F,  
@@ -37,6 +37,7 @@ class DDT:
 
         self.K = K
         self.F = F
+        self.freq = freq
         self.cons = cons
         self.balance = balance
         self.episode = episode
@@ -44,7 +45,7 @@ class DDT:
         self.train_data = train_data
         self.test_data = test_data
 
-        self.agent = Agent(lr1=lr1, lr2=lr2,  
+        self.agent = Agent(lr1=lr1, lr2=lr2, term=term,
                            environment=self.environment,
                            cost=fee, alpha=alpha, tau=tau,
                            delta=delta, K=K, gamma=gamma,
@@ -101,7 +102,7 @@ class DDT:
                     self.agent.update(*sampled_exps)
                     self.agent.soft_target_update(self.agent.net.parameters(), self.agent.target_net.parameters())
                     
-                if steps_done % 500 == 0:
+                if steps_done % self.freq == 0:
                     const, lam_grad = self.agent.update_lam(costs)
 
                 if epi == range(self.episode)[-1]:
@@ -143,11 +144,13 @@ class DDT:
                         self.metrics.get_portfolio_values()
                         self.metrics.get_fees()
                         self.metrics.get_cash()
+
                     break
            
-    def test(self, data=None, tests=["BH", "mean", "mode", "cppi"]):
+    def test(self, path=None, data=None, tests=["BH", "mean", "mode", "cppi"]):
         for test in tests:
-            self.environment.chart_data = self.test_data if data is None else data
+            self.agent.net.load_state_dict(torch.load(path)) if path is not None else self.agent.net
+            self.environment.chart_data = data if data is not None else self.test_data
             self.reset()
 
             cum_r = 0
@@ -165,7 +168,7 @@ class DDT:
                 n_prices, n_portfolio, reward, cost, done = self.agent.step(action, abs(action))
                 n_cushion = self.agent.get_cushion()
                 next_state = self.make_state(n_prices, n_portfolio, n_cushion)
-                print(self.agent.portfolio, action)
+                # print(self.agent.portfolio, action)
 
                 cum_r += reward
                 cum_c += cost

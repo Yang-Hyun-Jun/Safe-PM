@@ -14,9 +14,9 @@ class Agent(nn.Module):
 
     def __init__(self, gamma:float, environment,
                  net:nn.Module, target_net:nn.Module,
-                 K:int, cost:float, alpha:float,
-                 lr1:float, lr2:float,
-                 tau:float, delta:float, 
+                 K:int, cost:float, alpha:float, 
+                 lr1:float, lr2:float, term:float,
+                 tau:float, delta:float,  
                  min_trading_price:int,
                  max_trading_price:int):
 
@@ -32,6 +32,7 @@ class Agent(nn.Module):
         self.tau = tau
         self.lam = 0
         self.K = K
+        self.term = term
         self.delta = delta
         self.alpha = alpha
         self.gamma = gamma
@@ -43,7 +44,7 @@ class Agent(nn.Module):
 
         self.num_stocks = np.array([0] * self.K, dtype=int)
         self.portfolio = np.array([0] * (self.K+1), dtype=float)
-        self.PVS = deque(maxlen=30)
+        self.PVS = deque(maxlen=self.term)
 
         self.TRADING_CHARGE = cost
         self.TRADING_TEX = 0.0
@@ -57,7 +58,7 @@ class Agent(nn.Module):
         self.initial_balance = balance
 
     def reset(self):
-        self.PVS = deque(maxlen=30)
+        self.PVS = deque(maxlen=self.term)
         self.PVS.append(self.initial_balance)
         self.num_stocks = np.array([0] * self.K, dtype=int)
         self.portfolio = np.array([0] * (self.K+1), dtype=float)
