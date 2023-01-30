@@ -13,7 +13,7 @@ class Tester(Trainer):
 
             cum_r = 0
             cum_c = 0 
-            steps_done = 0
+            steps_done = 0            
 
             prices = self.agent.environment.observe()
             portfolio = self.agent.portfolio
@@ -27,7 +27,7 @@ class Tester(Trainer):
                 n_cushion = self.agent.get_cushion()
                 next_state = self.make_state(n_prices, n_portfolio, n_cushion)
                 # print(self.agent.portfolio, action)
-
+                
                 cum_r += reward
                 cum_c += cost
                 steps_done += 1

@@ -7,24 +7,22 @@ from trainer import Trainer
 from tester import Tester
 from viz import Viz
 
-# ["COST", "INCY"]
-# ["TIGO", "BIDU"]
 parser = argparse.ArgumentParser()
-parser.add_argument("--tickers", nargs="+", default=["INCY", "REGN"])
+parser.add_argument("--tickers", nargs="+", default=["COST", "INCY", "LULU"])
 parser.add_argument("--train_start", type=str, default="2014-01-02")
 parser.add_argument("--train_end", type=str, default="2020-12-31")
 parser.add_argument("--test_start", type=str, default="2020-12-31")
-parser.add_argument("--test_end", type=str, default="2021-12-31")
+parser.add_argument("--test_end", type=str, default="2023-01-26")
 parser.add_argument("--seed", type=int, default=1)
 parser.add_argument("--lr1", type=float, default=1e-4)
 parser.add_argument("--lr2", type=float, default=1e-3)
 parser.add_argument("--tau", type=float, default=0.005)
 parser.add_argument("--fee", type=float, default=0.0000)
-parser.add_argument("--term", type=float, default=20)
+parser.add_argument("--term", type=float, default=30)
 parser.add_argument("--freq", type=float, default=500)
 parser.add_argument("--delta", type=float, default=0.000)
 parser.add_argument("--alpha", type=float, default=0.5)
-parser.add_argument("--episode", type=float, default=200)
+parser.add_argument("--episode", type=float, default=500)
 parser.add_argument("--gamma", type=float, default=0.9)
 parser.add_argument("--batch_size", type=float, default=128)
 parser.add_argument("--memory_size", type=float, default=10000)
@@ -75,5 +73,5 @@ trainer.train()
 trainer.save_model(utils.SAVE_DIR + "/net.pth")
 
 tester = Tester(**parameters, data=test_data_tensor)
-trainer.test(path=utils.SAVE_DIR + "/net.pth")
-viz.show(1,1)
+tester.test(path=utils.SAVE_DIR + "/net.pth")
+# viz.show(1,1)

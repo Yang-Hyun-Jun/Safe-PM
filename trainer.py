@@ -177,8 +177,8 @@ class Trainer:
     @staticmethod
     def get_mdd(array):
         df = pd.DataFrame({"PV":array})
-        df["전고점"] = df["PV"].cummax()
-        df["DrawDown"] = (1-df["PV"] / df["전고점"]) * 100
+        df["PreMax"] = df["PV"].cummax()
+        df["DrawDown"] = (1-df["PV"] / df["PreMax"]) * 100
         MDD = df["DrawDown"].max()
         return MDD
 
