@@ -8,6 +8,7 @@ class Tester(Trainer):
 
     def test(self, path=None, tests=["BH", "mean", "mode", "cppi"]):
         for test in tests:
+            self.agent.net.eval()
             self.agent.net.load_state_dict(torch.load(path))
             self.reset()
 
@@ -26,7 +27,6 @@ class Tester(Trainer):
                 n_prices, n_portfolio, reward, cost, done = self.agent.step(action, abs(action))
                 n_cushion = self.agent.get_cushion()
                 next_state = self.make_state(n_prices, n_portfolio, n_cushion)
-                # print(self.agent.portfolio, action)
                 
                 cum_r += reward
                 cum_c += cost
@@ -35,9 +35,10 @@ class Tester(Trainer):
 
                 self.metrics.portfolio_values.append(self.agent.portfolio_value)
                 self.metrics.profitlosses.append(self.agent.profitloss)
+                self.metrics.portfolios.append(self.agent.portfolio)
                 self.metrics.cum_fees.append(self.agent.cum_fee)
                 self.metrics.cash.append(self.agent.portfolio[0])
-
+                
                 if done:
                     print(f"epi:" + mode)
                     print(f"cum cost:{cum_c}")
@@ -49,6 +50,7 @@ class Tester(Trainer):
                     print(f"portfolio:{self.agent.portfolio}")
                     print(f"profitloss:{self.agent.profitloss}\n")
                     self.metrics.get_profitlosses(mode=mode)
+                    self.metrics.get_portfolios(mode=mode)
                     self.metrics.get_portfolio_values(mode=mode)
                     self.metrics.get_fees(mode=mode)
                     self.metrics.get_cash(mode=mode)

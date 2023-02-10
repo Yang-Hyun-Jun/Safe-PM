@@ -1,4 +1,5 @@
 import torch
+import pandas as pd
 import torch.nn as nn
 import numpy as np
 from collections import deque
@@ -129,14 +130,15 @@ class Agent(nn.Module):
 
     def get_reward(self, pv):
         reward = np.log(pv) - np.log(self.initial_balance)
-        # reward = np.log(pv) - np.log(self.PVS[0])
         return reward
 
-    def get_cost(self, cushion):
-        param = 2.3
-        param = 5.0
-        gap = max(cushion, 0)
-        cost = abs(self.portfolio[0] - np.exp(-param*gap))
+    def get_cost(self, mode):
+        if mode == "pv":
+            cost = 10 if self.portfolio_value <= min(self.PVS) else 0
+        elif mode == "mdd":
+            cost = 1 if self.get_mdd(self.PVS) >= 5 else 0
+        elif mode == "profitloss":
+            cost = 1 if self.profitloss <= -2.0 else 0 
         return cost
 
     def step(self, action, confidence):
@@ -218,12 +220,18 @@ class Agent(nn.Module):
         self.profitloss = ((self.portfolio_value / self.initial_balance) - 1)*100
         next_portfolio = self.portfolio
 
-        cost = 10 if self.portfolio_value < min(self.PVS) else 0
         self.PVS.append(self.portfolio_value)
-        
-        reward = 0.5 * sum(self.portfolio[1:]) + self.get_reward(self.portfolio_value) 
+        cost = 1 if self.get_mdd(self.PVS) >= 3 else 0
+        reward = 0.0 * sum(self.portfolio[1:]) + self.get_reward(self.portfolio_value) 
         done = 1 if len(self.environment.chart_data)-1 <= self.environment.idx else 0 
         return next_prices, next_portfolio, reward, cost, done
+    
+    def get_mdd(self, array):
+        df = pd.DataFrame({"PV":array})
+        df["PreMax"] = df["PV"].cummax()
+        df["DrawDown"] = (1-df["PV"] / df["PreMax"]) * 100
+        MDD = df["DrawDown"].max()
+        return MDD
 
     def update(self, s, p, r, ns, log_prob, done):
         eps_clip = 0.1

@@ -5,11 +5,12 @@ S: Num of Stocks
 """
 
 class Environment:
-    def __init__(self, chart_data=None):
+    def __init__(self, chart_data=None, holding=1):
         self.chart_data = chart_data
         self.observation = None
         self.idx = 0
         self.price_column = -1
+        self.holding = holding
 
     def reset(self):
         self.observation = None
@@ -19,7 +20,7 @@ class Environment:
         if len(self.chart_data)-1 >= self.idx:
             self.observation = self.chart_data[self.idx]
             self.observation_train = self.observation[:self.price_column] 
-            self.idx += 1
+            self.idx += self.holding
             return self.observation_train.transpose()
         else:
             return None

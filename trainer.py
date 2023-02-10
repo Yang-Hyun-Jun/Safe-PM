@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import utils
 
 from collections import deque
 from replaymemory import ReplayMemory
@@ -22,7 +23,7 @@ class Trainer:
                  lr1, lr2, term, freq,
                  tau, delta, alpha, gamma, fee,
                  batch_size, memory_size, cons,
-                 data, balance, episode, K, F,  
+                 data, holding, balance, episode, K, F,  
                  min_trading_price, max_trading_price):
 
         assert min_trading_price >= 0
@@ -31,7 +32,7 @@ class Trainer:
 
         self.net = Network(K=K, F=F)
         self.target_net = Network(K=K, F=F)
-        self.environment = Environment(data)
+        self.environment = Environment(data, holding)
         self.memory = ReplayMemory(memory_size)
         self.metrics = Metrics()
 
@@ -100,7 +101,7 @@ class Trainer:
                     sampled_exps = self.prepare_training_inputs(sampled_exps)
                     self.agent.update(*sampled_exps)
                     self.agent.soft_target_update(self.agent.net.parameters(), self.agent.target_net.parameters())
-                    
+
                 if steps_done % self.freq == 0:
                     const, lam_grad = self.agent.update_lam(costs)
 
@@ -144,6 +145,9 @@ class Trainer:
                         self.metrics.get_fees()
                         self.metrics.get_cash()
 
+                    if (epi+1) % 100 == 0:
+                        self.save_model(utils.SAVE_DIR + f"/net{epi+1}.pth")
+
                     break
      
     def save_model(self, net_path):
@@ -169,6 +173,7 @@ class Trainer:
         for sampled_exp in sampled_exps:
             for i in range(num):
                 x[i].append(sampled_exp[i])
+
         for i in range(num):
             x[i] = torch.cat(x[i], dim=0).float()
 

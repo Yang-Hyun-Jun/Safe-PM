@@ -7,7 +7,7 @@ class Viz:
     def __init__(self):
         pass
 
-    def show(self, seed_from, seed_to, size=(5,5)):
+    def show(self, seed_from, seed_to, path, size=(5,5)):
         mean_datas = []
         mode_datas = []
         BH_datas = []
@@ -70,9 +70,14 @@ class Viz:
         plt.legend(fontsize=18)
         plt.ylabel("Profitloss", fontsize=20)
         plt.xlabel("Test timesteps", fontsize=20)
-        plt.show()
 
         print("mean profitloss:", expect_mean[-1])
         print("mode profitloss:", expect_mode[-1])
         print("BH profitloss:", expect_BH[-1])
         print("CPPI profitloss:", expect_cppi[-1])
+
+        if path:
+            plt.savefig(path)
+        else:
+            plt.show()
+

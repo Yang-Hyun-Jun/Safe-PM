@@ -6,6 +6,7 @@ class Metrics:
     def __init__(self):
         self.portfolio_values = [] 
         self.profitlosses = []
+        self.portfolios = []
         self.daily_returns = []
         self.cum_fees = []
         self.balances = []
@@ -14,6 +15,7 @@ class Metrics:
         self.volatility = None
 
     def reset(self):
+        self.portfolios = []
         self.portfolio_values = []
         self.profitlosses = []
         self.daily_returns = []
@@ -49,6 +51,12 @@ class Metrics:
         save_path = utils.SAVE_DIR + "/Profitloss" + mode\
             if save_path is None else save_path
         df = pd.DataFrame({"Profitloss": self.profitlosses})
+        df.to_csv(save_path)
+
+    def get_portfolios(self, save_path=None, mode="_Train"):
+        save_path = utils.SAVE_DIR + "/Portfolios" + mode\
+            if save_path is None else save_path
+        df = pd.DataFrame(self.portfolios)
         df.to_csv(save_path)
 
     def get_daily_returns(self, save_path=None, mode="_Train"):
