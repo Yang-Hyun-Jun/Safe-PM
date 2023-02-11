@@ -7,7 +7,7 @@ class Viz:
     def __init__(self):
         pass
 
-    def show(self, seed_from, seed_to, path, size=(5,5)):
+    def show(self, seed_from, seed_to, path=False, size=(5,5)):
         mean_datas = []
         mode_datas = []
         BH_datas = []

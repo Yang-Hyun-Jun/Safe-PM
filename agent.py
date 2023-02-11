@@ -221,7 +221,8 @@ class Agent(nn.Module):
         next_portfolio = self.portfolio
 
         self.PVS.append(self.portfolio_value)
-        cost = 1 if self.get_mdd(self.PVS) >= 3 else 0
+        # cost = 1 if self.get_mdd(self.PVS) >= 2 else 0
+        cost = 10 if self.profitloss <= -2.0 else 0 
         reward = 0.0 * sum(self.portfolio[1:]) + self.get_reward(self.portfolio_value) 
         done = 1 if len(self.environment.chart_data)-1 <= self.environment.idx else 0 
         return next_prices, next_portfolio, reward, cost, done
